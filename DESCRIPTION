@@ -1,0 +1,26 @@
+Package: nielsenUtils
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Gabriel Quintanar
+Maintainer: The package maintainer <gquinmat@outlook.com>
+Description: Conjunto de funciones y variables utilitarias
+    para tareas comunes dentro de Nielsen GDDC Brasil.
+License: Nielsen
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    purrr,
+    data.table,
+    glue,
+    stringr,
+    futile.logger,
+    haven,
+    openxlsx,
+    furrr,
+    bit64,
+    magrittr,
+    feather
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)
