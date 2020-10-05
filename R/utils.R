@@ -431,19 +431,20 @@ merge_columns <- function(dt, keep.y = TRUE, suffixes = c(".x", ".y")){
 #' @import magrittr
 #' @import data.table
 #' @import feather
+#' @import stringr
 #'
 #' @export
 read.dt <- function(path, col_class = 'auto', .verbose = F,  ...){
   if(.verbose) log_msg(paste("Leyendo data:", path))
-  if(str_detect(path, ".sas7bdat$"))
+  if(stringr::str_detect(path, ".sas7bdat$"))
     dt <- haven::read_sas(path) %>% data.table()
-  else if(str_detect(path, "\\.xls$|\\.xlsx$"))
+  else if(stringr::str_detect(path, "\\.xls$|\\.xlsx$"))
     dt <- openxlsx::read.xlsx(xlsxFile = path, ...) %>% data.table()
-  else if(str_detect(path, "\\.csv$|\\.txt$|\\.tsv$"))
+  else if(stringr::str_detect(path, "\\.csv$|\\.txt$|\\.tsv$"))
     dt <- data.table::fread(path,...)
-  else if(str_detect(path, regex("\\.rds$", ignore_case = T)))
+  else if(stringr::str_detect(path, regex("\\.rds$", ignore_case = T)))
     dt <- readRDS(path) %>% data.table
-  else if(str_detect(path, regex("\\.feather$", ignore_case = T)))
+  else if(stringr::str_detect(path, regex("\\.feather$", ignore_case = T)))
     dt <- feather::read_feather(path) %>% data.table
   else stop("Tipo de archivo no soportado")
 
@@ -456,10 +457,10 @@ read.dt <- function(path, col_class = 'auto', .verbose = F,  ...){
 
   if(col_class == 'chr')
     dt[, (names(dt)) := lapply(.SD, as.character)] %>%
-    .[, (names(dt)) := lapply(.SD, str_replace_all, special_chrs)]
+    .[, (names(dt)) := lapply(.SD, stringr::str_replace_all, special_chrs)]
   else if(col_class == 'auto'){
     chr.names <- names(dt)[dt[, sapply(.SD, is.character, USE.NAMES = F)]]
-    dt[, (chr.names) := lapply(.SD, str_replace_all, special_chrs),
+    dt[, (chr.names) := lapply(.SD, stringr::str_replace_all, special_chrs),
        .SDcols = chr.names]
   }
   if(.verbose) log_msg("Data leida.")
