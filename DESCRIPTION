@@ -1,7 +1,7 @@
 Package: nielsenUtils
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.0
+Version: 0.1.0.1
 Author: Gabriel Quintanar
 Maintainer: The package maintainer <gquinmat@outlook.com>
 Description: Conjunto de funciones y variables utilitarias
@@ -9,7 +9,8 @@ Description: Conjunto de funciones y variables utilitarias
 License: Nielsen
 Encoding: UTF-8
 LazyData: true
-Imports: 
+RoxygenNote: 7.1.1
+Depends: 
     purrr,
     data.table,
     glue,
@@ -20,9 +21,8 @@ Imports:
     furrr,
     bit64,
     magrittr,
-    feather
-RoxygenNote: 7.1.1
-Depends: 
+    feather,
+    glue,
     R (>= 3.6)
 URL: https://github.com/GabrielQuinmat/nielsenUtils
 BugReports: https://github.com/GabrielQuinmat/nielsenUtils/issues

@@ -142,14 +142,18 @@ rvars_regex <- "\\p{L}*\\w+\\p{L}*(?=\\s*(==|>=*|<=*|%in%|%notin%|!=)\\s*)"
 #' @param dt Data.table a evaluar sus columnas.
 #' @param suffixes vector de solo dos elementos, donde se especifica como se llaman
 #' las columnas duplicadas.
+#'
+#' @import glue
+#' @import stringr
+#'
 #' @return Data.table con columnas evaluadas con terminacion '.equal'
 #' @export
 eval_duplicate_columns <- function(dt, suffixes = c(".x", ".y")){
-  dups <- grep(glue("\\{suffixes[1]}$|\\{suffixes[2]}$"), names(dt), value = T)
-  x.vars <- grep(glue("\\{suffixes[1]}$"), names(dt), value = T) %>% sort()
-  y.vars <- grep(glue("\\{suffixes[2]}$"), names(dt), value = T) %>% sort()
+  dups <- grep(glue::glue("\\{suffixes[1]}$|\\{suffixes[2]}$"), names(dt), value = T)
+  x.vars <- grep(glue::glue("\\{suffixes[1]}$"), names(dt), value = T) %>% sort()
+  y.vars <- grep(glue::glue("\\{suffixes[2]}$"), names(dt), value = T) %>% sort()
   assure_type(dt, x.vars, y.vars)
-  originals <- str_remove_all(dups, glue("\\{suffixes[1]}$|\\{suffixes[2]}$")) %>% unique()
+  originals <- stringr::str_remove_all(dups, glue::glue("\\{suffixes[1]}$|\\{suffixes[2]}$")) %>% unique()
   pb <- txtProgressBar(max = length(originals), style = 3)
   for(i in 1:length(originals)){
     var1 <- paste0(originals[i], suffixes[1]); var2 <- paste0(originals[i], suffixes[2])
@@ -169,10 +173,14 @@ eval_duplicate_columns <- function(dt, suffixes = c(".x", ".y")){
 #' @return Lista de subsets de DT, donde cada indice es una de las columnas evaluadas,
 #' retornando solo resultados no iguales.
 #'
+#' @import stringr
+#' @import purrr
+#'
 #' @export
 eval_equal_columns <- function(DT){
+  require(purrr)
   eq.vars <- grep("\\.equal$", names(DT), value = TRUE)
-  originals <- str_remove_all(eq.vars, ".equal") %>% unique()
+  originals <- stringr::str_remove_all(eq.vars, ".equal") %>% unique()
   result <- map2(eq.vars, originals,
                  ~DT[(!get(.x)), paste0(.y, c(".x", ".y")), with = FALSE]) %>%
     set_names(originals)
@@ -194,8 +202,11 @@ eval_equal_columns <- function(DT){
 #'
 #' @return DT con variables casteadas.
 #'
+#' @import purrr
+#'
 #' @export
 assure_type <- function(DT, var, var2, keep.y = TRUE){
+  require(purrr)
   types_comp <- map2_lgl(var, var2,
                          ~DT[, class(get(.x)) != class(get(.y))]) %>% set_names(var)
   x.vars <- DT[, lapply(.SD, class), .SDcols = var[types_comp]]
@@ -244,6 +255,10 @@ merge.list <- function(list.dt, key, ...){
 #' @param solve_conflict decide si los conflictos en cada merge se resuelven
 #' o bien manteniendo la ultima columna ingresada o substituyendo en donde el valor
 #' sea nuevo.
+#'
+#' @import glue
+#' @import purrr
+#'
 #' @return data.table resultado de todos los merge.
 #' @export
 iterative.merge <- function(refDT, list.DT, list.keys, ..., keep.y = T,
@@ -251,7 +266,7 @@ iterative.merge <- function(refDT, list.DT, list.keys, ..., keep.y = T,
   pb <- txtProgressBar(max = length(list.DT), style = 3)
   for(i in 1:length(list.DT)){
     if(!(list.keys[[i]] %in% names(refDT) & list.keys[[i]] %in% names(list.DT[[i]]))){
-      log_msg(glue("Llave {list.keys[[i]]} no existe en ambos DT's, saltando"))
+      log_msg(glue::glue("Llave {list.keys[[i]]} no existe en ambos DT's, saltando"))
       next
     }
     dts <- prepare_dts(refDT, list.DT[[i]], list.keys[[i]], keep.y)
@@ -354,7 +369,7 @@ assure_type_DTs <- function(xDT, yDT, keys, keep.y = T){
 #' @export
 rid_duplicate_columns <- function(dt, keep.y){
   dups <- names(dt)[names(dt) %like% ".x$|.y$"]
-  originals <- str_remove_all(dups, ".x$|.y$") %>% unique()
+  originals <- stringr::str_remove_all(dups, ".x$|.y$") %>% unique()
   if(length(originals) > 0){
     log_msg("Columns duplicated by merge:")
     log_msg(paste(originals, collapse = ","))
@@ -380,9 +395,9 @@ rid_duplicate_columns <- function(dt, keep.y){
 #'
 #' @export
 merge_columns <- function(dt, keep.y = TRUE, suffixes = c(".x", ".y")){
-  dups <- grep(glue("\\{suffixes[1]}$|\\{suffixes[2]}$"),
+  dups <- grep(glue::glue("\\{suffixes[1]}$|\\{suffixes[2]}$"),
                names(dt), value = TRUE)
-  originals <- str_remove_all(dups, glue("\\{suffixes[1]}$|\\{suffixes[2]}$")) %>%
+  originals <- stringr::str_remove_all(dups, glue::glue("\\{suffixes[1]}$|\\{suffixes[2]}$")) %>%
     unique()
   if(length(originals) > 0){
     log_msg("Columns duplicated by merge:")
@@ -394,7 +409,7 @@ merge_columns <- function(dt, keep.y = TRUE, suffixes = c(".x", ".y")){
     var1 <- paste0(i, suffixes[1]); var2 <- paste0(i, suffixes[2])
     var.eq <- paste0(i, ".equal")
     if(keep.y)
-      dt[, (i) := pmap_chr(list(get(var1), get(var2)),
+      dt[, (i) := purrr::pmap_chr(list(get(var1), get(var2)),
                            function(var1, var2){
                              if(keep.y){
                                if(is.na(var2)) return(var1)
@@ -843,6 +858,6 @@ warn.num <- function(x){
              P <- as.numeric(x)
              INDEXES <- which(is.na(P))
              errors <- x[INDEXES] %>% unique() %>% paste0(collapse = ", ")
-             glue("Texto no parseable: {errors}")
+             glue::glue("Texto no parseable: {errors}")
            })
 }
