@@ -450,7 +450,7 @@ read.dt <- function(path, col_class = 'auto', .verbose = F,  ...){
 
   if(.verbose) log_msg("Estandarizando headers")
 
-  setnames(dt, toupper(names(dt)))
+  data.table::setnames(dt, toupper(names(dt)))
   dt <- dt[, (unique(names(dt))), with = F]
 
   if(.verbose) log_msg("Limpiando caracteres especiales")
