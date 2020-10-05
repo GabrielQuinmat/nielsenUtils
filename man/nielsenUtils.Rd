@@ -12,6 +12,14 @@ que son comunes en distintos procesos y tareas de GDDC Brasil Nielsen,
 por lo que se engloban en esta paqueteria para poder mantenerse de
 forma facil y compartirse con el equipo.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/GabrielQuinmat/nielsenUtils}
+  \item Report bugs at \url{https://github.com/GabrielQuinmat/nielsenUtils/issues}
+}
+
+}
 \author{
 Gabriel Quintanar \email{yahirgabriel.quintanarmartinez@nielsen.com}
 }
